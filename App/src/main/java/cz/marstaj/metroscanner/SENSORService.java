@@ -12,17 +12,57 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import cz.marstaj.metroscanner.data.SENSOR;
+import cz.marstaj.metroscanner.util.LocalBinder;
+
 /**
  * Created by mastajner on 12/12/13.
  */
 public class SENSORService extends Service {
 
+    /**
+     * Service TAG
+     */
     private final String TAG = "SENSORService";
+    /**
+     * File postfix
+     */
+    private final String restFileName = "_sensor_log.txt";
+    /**
+     * GSM source object
+     */
     private SENSOR sensor;
+    /**
+     * Flag whether the service is running
+     */
     private boolean isRunning = false;
+    /**
+     * File writer for writing data to file
+     */
     private FileWriter writer;
 
-    private final String restFileName = "_sensor_log.txt";
+    /**
+     * Create new file writer
+     *
+     * @param logFileName File name
+     * @return File writer
+     */
+    public static FileWriter createLogFileWriter(String logFileName) {
+        FileWriter fileWriter = null;
+        File root = new File(Environment.getExternalStorageDirectory(), MainActivity.FOLDER_NAME);
+        if (!root.exists()) {   //Create the subfolder if it does not exist
+            root.mkdirs();
+        }
+        File file = new File(root, logFileName);    //Create the file object using the provided file name
+        //Open the writer
+        try {
+            fileWriter = new FileWriter(file, true);
+        } catch (IOException e) {
+            Log.v("LOG FILE", "Failed to open file for '" + logFileName + "'");
+            e.printStackTrace();
+        }
+        return fileWriter;
+    }
 
     @Override
     public void onCreate() {
@@ -37,6 +77,7 @@ public class SENSORService extends Service {
         notification.setLatestEventInfo(this, TAG, "is running", pendingIntent);
         startForeground(MainActivity.SENSORS_SERVICE_ID, notification);
 
+        // get Accelerometer object and set data listener
         sensor = new SENSOR(getApplicationContext());
         sensor.setOnDataReceivedListener(new OnDataReceivedListener() {
             @Override
@@ -56,6 +97,7 @@ public class SENSORService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v(TAG, "onStartCommand");
 
+        // Start if not already running
         if (!isRunning) {
             isRunning = true;
             start();
@@ -64,11 +106,17 @@ public class SENSORService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * Start service and init file writer
+     */
     private void start() {
         writer = createLogFileWriter(MainActivity.partFileName + restFileName);
         sensor.start();
     }
 
+    /**
+     * Stop service and close file writer
+     */
     private void stop() {
         sensor.stop();
         try {
@@ -76,23 +124,6 @@ public class SENSORService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static FileWriter createLogFileWriter(String logFileName) {
-        FileWriter fileWriter = null;
-        File root = new File(Environment.getExternalStorageDirectory(), MainActivity.FOLDER_NAME);
-        if (!root.exists()) {   //Create the subfolder if it does not exist
-            root.mkdirs();
-        }
-        File file = new File(root, logFileName);    //Create the file object using the provided file name
-        //Open the writer
-        try {
-            fileWriter = new FileWriter(file, true);
-        } catch (IOException e) {
-            Log.v("LOG FILE", "Failed to open file for '" + logFileName + "'");
-            e.printStackTrace();
-        }
-        return fileWriter;
     }
 
     @Override
@@ -112,6 +143,7 @@ public class SENSORService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.v(TAG, "onDestroy");
+        // Stop service
         stop();
         stopForeground(true);
     }

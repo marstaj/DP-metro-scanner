@@ -1,4 +1,4 @@
-package cz.marstaj.metroscanner;
+package cz.marstaj.metroscanner.util;
 
 import android.os.Binder;
 

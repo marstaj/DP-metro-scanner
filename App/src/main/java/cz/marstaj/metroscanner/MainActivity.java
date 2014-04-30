@@ -12,15 +12,36 @@ import java.util.Calendar;
 
 public class MainActivity extends Activity {
 
+    /**
+     * Name of the folder for saving data
+     */
     public static final String FOLDER_NAME = "MetroScanner";
+
+    /**
+     * GSM strength getting interval
+     */
     public static final int GSM_INTERVAL = 100; // WAS 1000
+
+    /**
+     * Accelerator data getting interval
+     */
     public static final int SENSOR_INTERVAL = SensorManager.SENSOR_DELAY_FASTEST; // WAS SENSOR_DELAY_NORMAL
+
+    //Service IDs
     public static final int GSM_SERVICE_ID = 1;
     public static final int SENSORS_SERVICE_ID = 2;
     public static final int USER_SERVICE_ID = 3;
+
+    /**
+     * Prefix for filename
+     */
     public static String partFileName = "";
-    public final String TAG = "MainActivity";
-    View.OnClickListener listener = new View.OnClickListener() {
+
+
+    /**
+     * Section button click listener
+     */
+    View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             if (userHelper.isBound()) {
@@ -31,27 +52,41 @@ public class MainActivity extends Activity {
             }
         }
     };
+
+    // Views
     private Button stopService;
     private Button startService;
     private TextView textView;
-    private GSMServiceHelper gsmHelper;
-    private SENSORServiceHelper sensorHelper;
-    private USERServiceHelper userHelper;
 
-    public static void SystemOutPrint(String tag, String log) {
-        System.out.print(tag + ", " + log);
-    }
+    /**
+     * GSM service helper class
+     */
+    private GSMServiceHelper gsmHelper;
+
+    /**
+     * Accelerometer service helper class
+     */
+    private SENSORServiceHelper sensorHelper;
+
+    /**
+     * User service helper class
+     */
+    private USERServiceHelper userHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Keep the screen on
         getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        // Set view
         setContentView(R.layout.activity_main);
 
         // Init buttons
         handleUserButtons();
 
+        // Init views
         startService = (Button) findViewById(R.id.buttonStart);
         stopService = (Button) findViewById(R.id.buttonStop);
         startService.setOnClickListener(new View.OnClickListener() {
@@ -81,6 +116,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onStart() {
+        // Bind all running services and adjust buttons visibility accordingly
         boolean somethigRunning = bindAllServices();
         if (somethigRunning) {
             startService.setVisibility(View.GONE);
@@ -98,6 +134,9 @@ public class MainActivity extends Activity {
         super.onStop();
     }
 
+    /**
+     * Start all services
+     */
     private void startAllServices() {
         //Generate file name
         Calendar cal = Calendar.getInstance();
@@ -108,12 +147,18 @@ public class MainActivity extends Activity {
         userHelper.startAndBind();
     }
 
+    /**
+     * Start all services
+     */
     private void stopAllServices() {
         gsmHelper.stopAndUnbind();
         sensorHelper.stopAndUnbind();
         userHelper.stopAndUnbind();
     }
 
+    /**
+     * Bind all services
+     */
     private boolean bindAllServices() {
         boolean somethingRunning = false;
         if (isServiceRunning(GSMService.class)) {
@@ -134,8 +179,9 @@ public class MainActivity extends Activity {
         return somethingRunning;
     }
 
-    // ---------------------- USER BUTTONS ----------------------
-
+    /**
+     * Unbind all services
+     */
     private void unbindAllServices() {
         if (gsmHelper.isBound()) {
             gsmHelper.unbind();
@@ -148,6 +194,12 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * Find out whether service is running
+     *
+     * @param className
+     * @return True or False
+     */
     private boolean isServiceRunning(Class className) {
         ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -158,6 +210,9 @@ public class MainActivity extends Activity {
         return false;
     }
 
+    /**
+     * Init buttons views
+     */
     private void handleUserButtons() {
         textView = (TextView) findViewById(R.id.textView);
 
@@ -177,12 +232,12 @@ public class MainActivity extends Activity {
         metroGo.setTag("6"); // metroGo
         metroStop.setTag("7"); // metroStop
 
-        regularUp.setOnClickListener(listener);
-        regularDown.setOnClickListener(listener);
-        movingUp.setOnClickListener(listener);
-        movingDown.setOnClickListener(listener);
-        stopPlatform.setOnClickListener(listener);
-        metroGo.setOnClickListener(listener);
-        metroStop.setOnClickListener(listener);
+        regularUp.setOnClickListener(buttonClickListener);
+        regularDown.setOnClickListener(buttonClickListener);
+        movingUp.setOnClickListener(buttonClickListener);
+        movingDown.setOnClickListener(buttonClickListener);
+        stopPlatform.setOnClickListener(buttonClickListener);
+        metroGo.setOnClickListener(buttonClickListener);
+        metroStop.setOnClickListener(buttonClickListener);
     }
 }

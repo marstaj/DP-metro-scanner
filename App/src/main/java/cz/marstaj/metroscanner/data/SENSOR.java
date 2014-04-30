@@ -1,4 +1,4 @@
-package cz.marstaj.metroscanner;
+package cz.marstaj.metroscanner.data;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -7,31 +7,18 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import cz.marstaj.metroscanner.MainActivity;
+import cz.marstaj.metroscanner.OnDataReceivedListener;
+
 public class SENSOR {
 
+    /**
+     * Sensot manager
+     */
     private final SensorManager mSensorManager;
-    private Context context;
-
-    private int lastSignalStrenght = 0;
-    private Sensor mAccelerometer;
-    private OnDataReceivedListener onDataReceivedListener;
-
-    public SENSOR(Context context) {
-        this.context = context;
-        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-    }
-
-    public void start() {
-        Log.v("SENSOR", "start");
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorManager.registerListener(listener, mAccelerometer, MainActivity.SENSOR_INTERVAL);
-    }
-
-    public void stop() {
-        Log.v("SENSOR", "stop");
-        mSensorManager.unregisterListener(listener);
-    }
-
+    /**
+     * Listener for accelerometer changes
+     */
     SensorEventListener listener = new SensorEventListener() {
 
         @Override
@@ -47,14 +34,49 @@ public class SENSOR {
 
         }
     };
+    /**
+     * Context
+     */
+    private Context context;
+    /**
+     * Accelerometer sensor
+     */
+    private Sensor mAccelerometer;
+    /**
+     * Data received listener
+     */
+    private OnDataReceivedListener onDataReceivedListener;
 
+    public SENSOR(Context context) {
+        this.context = context;
+        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+    }
+
+    /**
+     * Start receiving accelerometer data
+     */
+    public void start() {
+        Log.v("SENSOR", "start");
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorManager.registerListener(listener, mAccelerometer, MainActivity.SENSOR_INTERVAL);
+    }
+
+    /**
+     * Stop receiving accelerometer data
+     */
+    public void stop() {
+        Log.v("SENSOR", "stop");
+        mSensorManager.unregisterListener(listener);
+    }
+
+    /**
+     * Create and print accelerometer data information
+     *
+     * @param x
+     * @param y
+     * @param z
+     */
     private void getSENSORinfo(float x, float y, float z) {
-//        String out = "X: " + x + ", ";
-//        out += "Y: " + y + ", ";
-//        out += "Z: " + z + ", ";
-//        out += "TIME: " + System.currentTimeMillis();
-//        out += "\n";
-
         String out = x + ", ";
         out += y + ", ";
         out += z + ", ";
@@ -63,9 +85,13 @@ public class SENSOR {
         print(out);
     }
 
-    private void print(String str) {
-//        Log.v("GSM", "GSM - " + str);
-        onDataReceivedListener.onDataReceived(str);
+    /**
+     * Print accelerometer info
+     *
+     * @param info
+     */
+    private void print(String info) {
+        onDataReceivedListener.onDataReceived(info);
     }
 
     public void setOnDataReceivedListener(OnDataReceivedListener onDataReceivedListener) {
