@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="cz.marstaj.metroscanner"
+<manifest
+    package="cz.marstaj.metroscanner"
+    xmlns:android="http://schemas.android.com/apk/res/android"
           android:versionCode="1"
           android:versionName="1.0">
 
@@ -11,7 +12,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="9"
         android:targetSdkVersion="19"/>
 
     <application
@@ -32,16 +33,16 @@
         </activity>
 
         <service
-            android:enabled="true"
-            android:name=".GSMService">
+            android:name=".GSMService"
+            android:enabled="true">
         </service>
         <service
-            android:enabled="true"
-            android:name=".SENSORService">
+            android:name=".SENSORService"
+            android:enabled="true">
         </service>
         <service
-            android:enabled="true"
-            android:name=".USERService">
+            android:name=".USERService"
+            android:enabled="true">
         </service>
     </application>
 

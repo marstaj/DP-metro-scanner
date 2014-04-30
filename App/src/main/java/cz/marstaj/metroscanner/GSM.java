@@ -15,13 +15,6 @@ public class GSM {
     private Context context;
 
     private int lastSignalStrenght = 0;
-    private OnDataReceivedListener onDataReceivedListener;
-
-    public GSM(Context context) {
-        handler = new Handler();
-        tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-    }
-
     PhoneStateListener listener = new PhoneStateListener() {
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
@@ -29,6 +22,12 @@ public class GSM {
             getGSMinfo();
         }
     };
+    private OnDataReceivedListener onDataReceivedListener;
+
+    public GSM(Context context) {
+        handler = new Handler();
+        tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+    }
 
     public void start() {
         Log.v("GSM", "start");
@@ -44,15 +43,6 @@ public class GSM {
         tm.listen(listener, PhoneStateListener.LISTEN_NONE);
     }
 
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            handler.removeCallbacks(runnable);
-            getGSMinfo();
-            handler.postDelayed(runnable, MainActivity.GSM_INTERVAL);
-        }
-    };
-
     private void getGSMinfo() {
         GsmCellLocation cellLocation = (GsmCellLocation) tm.getCellLocation();
 //        String out = "CID: " + cellLocation.getCid() + ", ";
@@ -62,16 +52,26 @@ public class GSM {
 //        out += "TYPE: " + getType(tm.getNetworkType()) + ", ";
 //        out += "TIME: " + System.currentTimeMillis();
 //        out += "\n";
-
-        String out = "" + cellLocation.getCid() + ", ";
-        out += "" + (short) cellLocation.getCid() + ", ";
-        out += "" + cellLocation.getLac() + ", ";
-        out += "" + ((lastSignalStrenght * 2) - 113) + ", ";
-        out += "" + tm.getNetworkType() + ", "; //  out += "" + getType(tm.getNetworkType()) + ", ";
-        out += "" + System.currentTimeMillis();
-        out += "\n";
-        print(out);
+        if (cellLocation != null) {
+            String out = "" + cellLocation.getCid() + ", ";
+            out += "" + (short) cellLocation.getCid() + ", ";
+            out += "" + cellLocation.getLac() + ", ";
+            out += "" + ((lastSignalStrenght * 2) - 113) + ", ";
+            out += "" + tm.getNetworkType() + ", "; //  out += "" + getType(tm.getNetworkType()) + ", ";
+            out += "" + System.currentTimeMillis();
+            out += "\n";
+            print(out);
+        }
     }
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            handler.removeCallbacks(runnable);
+            getGSMinfo();
+            handler.postDelayed(runnable, MainActivity.GSM_INTERVAL);
+        }
+    };
 
     private String getType(int networkType) {
         switch (networkType) {
@@ -111,7 +111,6 @@ public class GSM {
                 return "UNKNOWN";
         }
     }
-
 
     private void print(String str) {
         Log.v("GSM", str);

@@ -12,26 +12,35 @@ import java.util.Calendar;
 
 public class MainActivity extends Activity {
 
-    public final String TAG = "MainActivity";
-
     public static final String FOLDER_NAME = "MetroScanner";
-    public static final int GSM_INTERVAL = 1000;
-    public static final int SENSOR_INTERVAL = SensorManager.SENSOR_DELAY_NORMAL;
-
-    public static String partFileName = "";
-
+    public static final int GSM_INTERVAL = 100; // WAS 1000
+    public static final int SENSOR_INTERVAL = SensorManager.SENSOR_DELAY_FASTEST; // WAS SENSOR_DELAY_NORMAL
     public static final int GSM_SERVICE_ID = 1;
     public static final int SENSORS_SERVICE_ID = 2;
     public static final int USER_SERVICE_ID = 3;
-
+    public static String partFileName = "";
+    public final String TAG = "MainActivity";
+    View.OnClickListener listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (userHelper.isBound()) {
+                String text = ((Button) view).getText().toString();
+                textView.setText(text + "\n" + textView.getText().toString());
+                String tag = (String) view.getTag();
+                userHelper.passUserCommand(tag);
+            }
+        }
+    };
     private Button stopService;
     private Button startService;
     private TextView textView;
-
     private GSMServiceHelper gsmHelper;
     private SENSORServiceHelper sensorHelper;
     private USERServiceHelper userHelper;
 
+    public static void SystemOutPrint(String tag, String log) {
+        System.out.print(tag + ", " + log);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +134,8 @@ public class MainActivity extends Activity {
         return somethingRunning;
     }
 
+    // ---------------------- USER BUTTONS ----------------------
+
     private void unbindAllServices() {
         if (gsmHelper.isBound()) {
             gsmHelper.unbind();
@@ -146,8 +157,6 @@ public class MainActivity extends Activity {
         }
         return false;
     }
-
-    // ---------------------- USER BUTTONS ----------------------
 
     private void handleUserButtons() {
         textView = (TextView) findViewById(R.id.textView);
@@ -175,21 +184,5 @@ public class MainActivity extends Activity {
         stopPlatform.setOnClickListener(listener);
         metroGo.setOnClickListener(listener);
         metroStop.setOnClickListener(listener);
-    }
-
-    View.OnClickListener listener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (userHelper.isBound()) {
-                String text = ((Button) view).getText().toString();
-                textView.setText(text + "\n" + textView.getText().toString());
-                String tag = (String) view.getTag();
-                userHelper.passUserCommand(tag);
-            }
-        }
-    };
-
-    public static void SystemOutPrint(String tag, String log) {
-        System.out.print(tag + ", " + log);
     }
 }
